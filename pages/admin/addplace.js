@@ -15,7 +15,90 @@ import AuthContext from '../../context/AuthContext';
 import MarkOnMap from '../../components/admin/editplace/form/MarkOnMap';
 import Heading from '../../components/common/Heading';
 import ImagesUpload from '../../components/admin/editplace/form/ImagesUpload';
+import { BASE_URL } from '../../constants/api';
+import { RefreshIcon } from '@heroicons/react/solid';
+const numberTooHigh = <Message message="Number too high" style="warning" />;
+const numberIsNegative = (
+  <Message message="Number can't be negative" style="warning" />
+);
+const numberIsEmpty = (
+  <Message message="Please enter a number" style="warning" />
+);
+const textTooShort = <Message message="Text too short" style="warning" />;
+const textTooLong = <Message message="Text too long" style="warning" />;
 
+const schema = yup.object().shape({
+  title: yup
+    .string()
+    .max(50, textTooLong)
+    .min(2, textTooShort)
+    .required(<Message message="Please enter a title" style="warning" />),
+  address: yup
+    .string()
+    .max(50, textTooLong)
+    .min(5, textTooShort)
+    .required(<Message message="Please enter an address" style="warning" />),
+  type: yup
+    .string()
+    .required(<Message message="Please select a type" style="warning" />),
+  host: yup
+    .string()
+    .required(<Message message="Please choose a host" style="warning" />),
+  breakfast: yup.boolean(),
+  kitchen: yup.boolean(),
+  wifi: yup.boolean(),
+  price: yup
+    .number()
+    .positive(numberIsNegative)
+    .integer()
+    .transform((value) => (isNaN(value) ? undefined : value))
+    .required(numberIsEmpty)
+    .max(999999, numberTooHigh)
+    .required(<Message message="Please enter a price" style="warning" />),
+  guests: yup
+    .number()
+    .positive(numberIsNegative)
+    .integer()
+    .transform((value) => (isNaN(value) ? undefined : value))
+    .required(numberIsEmpty)
+    .max(20, numberTooHigh)
+    .required(
+      <Message message="Please enter number of guests" style="warning" />
+    ),
+  bedrooms: yup
+    .number()
+    .positive(numberIsNegative)
+    .integer()
+    .transform((value) => (isNaN(value) ? undefined : value))
+    .required(numberIsEmpty)
+    .max(20, numberTooHigh)
+    .required(
+      <Message message="Please enter number of bedrooms" style="warning" />
+    ),
+  bathrooms: yup
+    .number()
+    .positive(numberIsNegative)
+    .integer()
+    .transform((value) => (isNaN(value) ? undefined : value))
+    .required(numberIsEmpty)
+    .max(20, numberTooHigh)
+    .required(
+      <Message message="Please enter number of bathrooms" style="warning" />
+    ),
+  latitude: yup.number(),
+  longitude: yup.number(),
+  description: yup
+    .string()
+    .max(1500, textTooLong)
+    .min(30, textTooShort)
+    .required(<Message message="Please enter a description" style="warning" />),
+  featured_image: yup
+    .mixed()
+    .required(
+      <Message message="Please select a featured image" style="warning" />
+    ),
+  images: yup.mixed(),
+});
 function AddPlace() {
   const [auth, setAuth] = useContext(AuthContext);
   const [submitting, setSubmitting] = useState(false);
@@ -32,59 +115,13 @@ function AddPlace() {
     );
   }
 
-  const schema = yup.object().shape({
-    title: yup
-      .string()
-      .required(<Message message="Please enter a title" style="warning" />),
-    address: yup
-      .string()
-      .required(<Message message="Please enter an address" style="warning" />),
-    type: yup
-      .string()
-      .required(<Message message="Please select a type" style="warning" />),
-    host: yup
-      .string()
-      .required(<Message message="Please choose a host" style="warning" />),
-    price: yup
-      .number()
-      .required(<Message message="Please enter a price" style="warning" />),
-    guests: yup
-      .number()
-      .required(
-        <Message message="Please enter number of guests" style="warning" />
-      ),
-    bedrooms: yup
-      .number()
-      .required(
-        <Message message="Please enter number of bedrooms" style="warning" />
-      ),
-    bathrooms: yup
-      .number()
-      .required(
-        <Message message="Please enter number of bathrooms" style="warning" />
-      ),
-    latitude: yup.number().required(),
-    longitude: yup.number().required(),
-    featured_image: yup
-      .mixed()
-      .required(<Message message="Please select an image" style="warning" />)
-      .test(
-        'fileSize',
-        'File too large',
-        (value) => value && value.size <= FILE_SIZE
-      )
-      .test(
-        'fileFormat',
-        'Unsupported Format',
-        (value) => value && SUPPORTED_FORMATS.includes(value.type)
-      ),
-  });
-
   const { register, handleSubmit, errors } = useForm({
     resolver: yupResolver(schema),
   });
 
   async function onSubmit(data) {
+    const url = BASE_URL + 'places';
+    console.log(data);
     setSubmitting(true);
     setSubmitError(null);
     const token = auth.jwt;
@@ -104,7 +141,7 @@ function AddPlace() {
       setSubmitError(error.toString());
     } finally {
       setSubmitting(false);
-      reset();
+      // reset();
     }
   }
 
@@ -124,7 +161,7 @@ function AddPlace() {
                       <div>
                         <label
                           htmlFor="title"
-                          className="block text-sm font-medium text-gray-700">
+                          className="mt-3 block text-sm font-medium text-gray-700">
                           Title:
                         </label>
                         <input
@@ -132,13 +169,13 @@ function AddPlace() {
                           name="title"
                           id="title"
                           ref={register}
-                          className="w-full mt-1 mb-4 py-2 px-3 border outline-none border-gray-300  focus:border-primary rounded-md"></input>
+                          className="w-full mt-1 py-2 px-3 border outline-none border-gray-300  focus:border-primary rounded-md"></input>
                         {errors.title && errors.title.message}
                       </div>
                       <div>
                         <label
                           htmlFor="address"
-                          className="block text-sm font-medium text-gray-700">
+                          className="mt-3 block text-sm font-medium text-gray-700">
                           Address:
                         </label>
                         <input
@@ -146,13 +183,13 @@ function AddPlace() {
                           name="address"
                           id="address"
                           ref={register}
-                          className="w-full mt-1 mb-4 py-2 px-3 border outline-none border-gray-300  focus:border-primary rounded-md"></input>
+                          className="w-full mt-1 py-2 px-3 border outline-none border-gray-300  focus:border-primary rounded-md"></input>
                         {errors.address && errors.address.message}
                       </div>
                       <TypeDropdown register={register} />
                       <HostDropdown register={register} />
-                      <div className="flex flex-wrap flex-row mt-4">
-                        <div className="flex items-center mr-6">
+                      <div className="flex flex-wrap flex-row mt-6">
+                        <div className="flex items-center mt-2 mr-6">
                           <input
                             id="breakfast"
                             name="breakfast"
@@ -165,7 +202,7 @@ function AddPlace() {
                             Breakfast
                           </label>
                         </div>
-                        <div className="flex items-center mr-6">
+                        <div className="flex items-center mt-2 mr-6">
                           <input
                             id="kitchen"
                             name="kitchen"
@@ -178,7 +215,7 @@ function AddPlace() {
                             Kitchen
                           </label>
                         </div>
-                        <div className="flex items-center mr-6">
+                        <div className="flex items-center mt-2 mr-6">
                           <input
                             id="wifi"
                             name="wifi"
@@ -197,7 +234,7 @@ function AddPlace() {
                       <div>
                         <label
                           htmlFor="price"
-                          className="block text-sm font-medium text-gray-700">
+                          className="mt-3 block text-sm font-medium text-gray-700">
                           Price:
                         </label>
                         <input
@@ -205,13 +242,13 @@ function AddPlace() {
                           name="price"
                           id="price"
                           ref={register}
-                          className="w-full mt-1 mb-4 py-2 px-3 border outline-none border-gray-300  focus:border-primary rounded-md"></input>
+                          className="w-full mt-1 py-2 px-3 border outline-none border-gray-300  focus:border-primary rounded-md"></input>
                         {errors.price && errors.price.message}
                       </div>
                       <div>
                         <label
                           htmlFor="guests"
-                          className="block text-sm font-medium text-gray-700">
+                          className="mt-3 block text-sm font-medium text-gray-700">
                           Guests:
                         </label>
                         <input
@@ -219,13 +256,13 @@ function AddPlace() {
                           name="guests"
                           id="guests"
                           ref={register}
-                          className="w-full mt-1 mb-4 py-2 px-3 border outline-none border-gray-300  focus:border-primary rounded-md"></input>
+                          className="w-full mt-1 py-2 px-3 border outline-none border-gray-300  focus:border-primary rounded-md"></input>
                         {errors.guests && errors.guests.message}
                       </div>
                       <div>
                         <label
                           htmlFor="bedrooms"
-                          className="block text-sm font-medium text-gray-700">
+                          className="mt-3 block text-sm font-medium text-gray-700">
                           Bedrooms:
                         </label>
                         <input
@@ -233,13 +270,13 @@ function AddPlace() {
                           name="bedrooms"
                           id="bedrooms"
                           ref={register}
-                          className="w-full mt-1 mb-4 py-2 px-3 border outline-none border-gray-300  focus:border-primary rounded-md"></input>
+                          className="w-full mt-1 py-2 px-3 border outline-none border-gray-300  focus:border-primary rounded-md"></input>
                         {errors.bedrooms && errors.bedrooms.message}
                       </div>
                       <div>
                         <label
                           htmlFor="bathrooms"
-                          className="block text-sm font-medium text-gray-700">
+                          className="mt-3 block text-sm font-medium text-gray-700">
                           Bathrooms:
                         </label>
                         <input
@@ -247,7 +284,7 @@ function AddPlace() {
                           name="bathrooms"
                           id="bathrooms"
                           ref={register}
-                          className="w-full mt-1 mb-4 py-2 px-3 border outline-none border-gray-300  focus:border-primary rounded-md"></input>
+                          className="w-full mt-1 py-2 px-3 border outline-none border-gray-300  focus:border-primary rounded-md"></input>
                         {errors.bathrooms && errors.bathrooms.message}
                       </div>
                     </div>
@@ -255,7 +292,7 @@ function AddPlace() {
                       <div>
                         <label
                           htmlFor="latitude"
-                          className="block text-sm font-medium text-gray-700">
+                          className="mt-3 block text-sm font-medium text-gray-700">
                           Latitude:
                         </label>
                         <input
@@ -264,12 +301,12 @@ function AddPlace() {
                           id="latitude"
                           value={latitude}
                           ref={register}
-                          className="w-full mt-1 mb-4 py-2 px-3 border outline-none border-gray-300  focus:border-primary rounded-md"></input>
+                          className="w-full mt-1 py-2 px-3 border outline-none border-gray-300  focus:border-primary rounded-md"></input>
                       </div>
                       <div>
                         <label
                           htmlFor="longitude"
-                          className="block text-sm font-medium text-gray-700">
+                          className="mt-3 block text-sm font-medium text-gray-700">
                           Longitude:
                         </label>
                         <input
@@ -278,9 +315,9 @@ function AddPlace() {
                           id="longitude"
                           ref={register}
                           value={longitude}
-                          className="w-full mt-1 mb-4 py-2 px-3 border outline-none border-gray-300  focus:border-primary rounded-md"></input>
+                          className="w-full mt-1 py-2 px-3 border outline-none border-gray-300  focus:border-primary rounded-md"></input>
                       </div>
-                      <p>Drag marker to pin the location:</p>
+                      <p className="mt-3">Drag marker to pin the location:</p>
                       <MarkOnMap
                         latitude={latitude}
                         setLatitude={setLatitude}
@@ -291,7 +328,7 @@ function AddPlace() {
                     <div className="col-span-1 sm:col-span-2 xl:col-span-1">
                       <label
                         htmlFor="description"
-                        className="block text-sm font-medium text-gray-700">
+                        className="mt-3 block text-sm font-medium text-gray-700">
                         Description:
                       </label>
                       <div className="h-60 flex flex-col col-span-1 sm:col-span-2 xl:col-span-1">
@@ -305,15 +342,11 @@ function AddPlace() {
                       </div>
                     </div>
                     <FeaturedImageUpload
-                    /*                       register={register}
+                      register={register}
                       error={errors.featuredimage}
-                      errormessage={errors.featuredimagemessage} */
+                      errormessage={errors.featuredimagemessage}
                     />
-                    <ImagesUpload
-                    /*                       register={register}
-                      error={errors.images}
-                      errormessage={errors.images.message} */
-                    />
+                    <ImagesUpload register={register} />
                   </div>
                   <div className="mt-6">
                     <div className="pr-4">

@@ -50,7 +50,7 @@ function Home() {
     <Layout containerSize="fullWidth">
       <Head title="Accommodations" />
       {/*  <Heading text="Map" />*/}
-      <div className="bg-white max-w-2xl ml-4" style={{ height: '100px' }}>
+      <div className="bg-white max-w-2xl mx-4" style={{ height: '100px' }}>
         <SearchBar
           places={places}
           filteredPlaces={filteredPlaces}

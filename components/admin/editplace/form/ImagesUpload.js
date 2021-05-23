@@ -1,17 +1,92 @@
-import React, { useCallback } from 'react';
+import { ExclamationCircleIcon } from '@heroicons/react/outline';
+import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 
 function ImagesUpload({ register }) {
-  const onDrop = useCallback((acceptedFiles) => {
-    // Do something with the files
-    console.log('something 2');
-  }, []);
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
+  const [files, setFiles] = useState([]);
 
+  // from http://scratch99.com/web-development/javascript/convert-bytes-to-mb-kb/
+  function bytesToSize(bytes) {
+    var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    if (bytes == 0) return 'n/a';
+    var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+    if (i == 0) return bytes + ' ' + sizes[i];
+    return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + sizes[i];
+  }
+
+  const {
+    acceptedFiles,
+    fileRejections,
+    getRootProps,
+    getInputProps,
+    isDragActive,
+  } = useDropzone({
+    accept: 'image/*',
+    maxSize: 1000000,
+    validator: fileSizeValidator,
+    onDrop: (acceptedFiles) => {
+      setFiles(
+        acceptedFiles.map((file) =>
+          Object.assign(file, {
+            preview: URL.createObjectURL(file),
+          })
+        )
+      );
+    },
+  });
+
+  const thumbs = (
+    <div className="mb-6 flex flex-wrap gap-4">
+      {acceptedFiles.map((file) => {
+        const fileSize = bytesToSize(file.size);
+        return (
+          <div key={file.name} className="mt-2 w-1/4">
+            <div className="w-full h-32">
+              <img
+                src={file.preview}
+                className="rounded-md object-cover w-full h-full"
+              />
+            </div>
+            <div className="mt-2 w-full h-full">
+              <p className="text-xs font-semibold break-all">{file.path}</p>
+              <p className="text-xs mt-1 break-all">{fileSize}</p>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+
+  function fileSizeValidator(file) {
+    if (file.size > 1000000) {
+      return `File size larger than 1MB`;
+    }
+
+    return null;
+  }
+  const fileRejectionItems = (
+    <div className="my-2 flex flex-wrap gap-1">
+      {fileRejections.map(({ file, errors }) => (
+        <div key={file.name} className="mt-1 w-full">
+          <p className="text-xs font-semibold break-all">{file.path}</p>
+          <div
+            key={file.path}
+            className=" bg-danger text-danger-dark mt-1 leading-tight p-1 px-2 mb-4 rounded-md">
+            <ExclamationCircleIcon className="inline w-5 mr-2" />
+            {errors.map((e, index) => (
+              <div className="inline text-xs font-semibold" key={index}>
+                {e.message}
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
   return (
     <div className="col-span-1 sm:col-span-2 xl:col-span-1">
-      <label className="block text-sm font-medium text-gray-700">
-        Featured Image
+      <label className="block mt-3 text-sm font-medium text-gray-700">
+        Choose Images
       </label>
       <div
         {...getRootProps()}
@@ -32,15 +107,22 @@ function ImagesUpload({ register }) {
           </svg>
           <div className="flex text-sm text-gray-600">
             <label
-              htmlFor="images"
+              htmlFor="featured_image"
               className="relative cursor-pointer bg-white rounded-md font-medium text-primary hover:text-primary-dark focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary">
-              <span>Upload a file</span>
-              <input id="images" name="images" {...getInputProps()} />
+              <span>Upload Images</span>
             </label>
+            <input ref={register} {...getInputProps()} />
             <p className="pl-1">or drag and drop</p>
           </div>
-          <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+          <p className="text-xs text-gray-500">PNG, JPG, GIF up to 1MB</p>
         </div>
+      </div>
+      <div>
+        <p className="mt-4 block text-sm font-medium text-gray-700">
+          Selected Images:
+        </p>
+        <ul>{thumbs}</ul>
+        {fileRejectionItems}
       </div>
     </div>
   );

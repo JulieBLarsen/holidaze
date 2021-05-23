@@ -21,8 +21,9 @@ const schema = yup.object().shape({
     .string()
     .required(<Message message="Please write a message" style="warning" />),
   place: yup.string(),
+  host: yup.string(),
 });
-function EnquiryForm({ place }) {
+function EnquiryForm({ place, host }) {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(null);
   const [submitMessage, setSubmitMessage] = useState('');
@@ -56,6 +57,12 @@ function EnquiryForm({ place }) {
             name="place"
             id="place"
             value={place}></input>
+          <input
+            ref={register}
+            type="hidden"
+            name="host"
+            id="host"
+            value={host}></input>
           <div className="mt-2 shadow-lg overflow-hidden sm:rounded-md">
             <div className="px-4 py-5 bg-white sm:p-6">
               <div className="text-left">

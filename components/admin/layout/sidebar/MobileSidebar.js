@@ -13,7 +13,14 @@ import {
 } from '@heroicons/react/outline';
 import { PrimaryButton } from '../../../common/Buttons';
 
-function MobileSidebar({ sidebarOpen, auth, setAuth, newMessages, logout }) {
+function MobileSidebar({
+  sidebarOpen,
+  auth,
+  setAuth,
+  newMessages,
+  enquiryLength,
+  logout,
+}) {
   const router = useRouter();
 
   return (
@@ -94,7 +101,7 @@ function MobileSidebar({ sidebarOpen, auth, setAuth, newMessages, logout }) {
                     </>
                   )}
                 </li>
-                <li>
+                <li className="relative">
                   <Link href="/admin/enquiries">
                     <a
                       className={
@@ -106,6 +113,19 @@ function MobileSidebar({ sidebarOpen, auth, setAuth, newMessages, logout }) {
                       Enquiries
                     </a>
                   </Link>
+                  {enquiryLength > 0 && (
+                    <>
+                      <svg
+                        className="absolute left-4 top-2 text-primary fill-current w-4"
+                        viewBox="0 0 100 100"
+                        xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="50" cy="50" r="50" />
+                      </svg>
+                      <span className="absolute left-4 top-2 px-1 text-xs font-medium">
+                        {enquiryLength}
+                      </span>
+                    </>
+                  )}
                 </li>
                 <li>
                   <Link href="/admin/hosts">

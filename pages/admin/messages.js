@@ -56,20 +56,20 @@ function Messages() {
   return (
     <AdminLayout>
       <Head title="Messages | Dashboard" />
-      <div className="w-full">
+      <div className="w-full mx-auto">
         <Heading text="Messages" />
-        <div className=" shadow m-10 border-b border-gray-200 sm:rounded-lg overflow-hidden">
+        <div className="shadow -m-8 mt-10 md:m-10 border-b border-gray-200  rounded-md sm:rounded-lg overflow-hidden">
           <table className="w-full table-fixed divide-y divide-gray-200">
             <thead className="bg-primary-light">
               <tr>
                 <th
                   scope="col"
-                  className="w-1/4 px-6 py-3 text-left text-sm font-semibold text-white uppercase tracking-wider">
+                  className="hidden md:table-cell w-1/4 px-6 py-3 text-left text-sm font-semibold text-white uppercase tracking-wider">
                   Name
                 </th>
                 <th
                   scope="col"
-                  className="w-full px-6 py-3 text-left text-sm font-semibold text-white uppercase tracking-wider">
+                  className="w-full px-2 md:px-6 py-3 text-left text-sm font-semibold text-white uppercase tracking-wider">
                   Title
                 </th>
                 <th
@@ -90,10 +90,10 @@ function Messages() {
                     onClick={() =>
                       message.new === true && readMessage(message.id)
                     }>
-                    <td className="w-1/12 px-6 py-4 truncate whitespace-nowrap">
+                    <td className="hidden md:table-cell w-1/12 px-6 py-4 truncate whitespace-nowrap">
                       {message.name}
                     </td>
-                    <td className="w-1/12 px-6 py-4 whitespace-nowrap truncate">
+                    <td className="w-1/12  px-2 md:px-6 py-4 whitespace-nowrap truncate">
                       <span className="w-1/4">
                         <Link
                           href="messages/[id]"
@@ -111,9 +111,9 @@ function Messages() {
                         {message.message}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-2 md:px-6 py-4 whitespace-nowrap">
                       {message.new === true && (
-                        <p className="bg-primary text-white p-1 text-center w-20 rounded-full text-xs font-semibold">
+                        <p className="bg-primary text-white p-1 px-3 inline text-center mx-auto  rounded-full text-xs font-semibold">
                           New
                         </p>
                       )}

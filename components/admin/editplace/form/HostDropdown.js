@@ -39,14 +39,16 @@ function HostDropdown({ register }) {
 
   return (
     <div>
-      <label htmlFor="host" className="block text-sm font-medium text-gray-700">
+      <label
+        htmlFor="host"
+        className="mt-3 block text-sm font-medium text-gray-700">
         Host:
       </label>
       <select
         name="host"
         id="host"
         ref={register}
-        className="w-full mt-1 mb-4 py-2 px-3 border outline-none border-gray-300  focus:border-primary rounded-md">
+        className="w-full mt-1 py-2 px-3 border outline-none border-gray-300  focus:border-primary rounded-md">
         {data.map((host) => (
           <option key={host.id} className="p-4 m-3">
             {host.name}

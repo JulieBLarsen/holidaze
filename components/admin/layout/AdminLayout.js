@@ -8,12 +8,14 @@ import Sidebar from './sidebar/Sidebar';
 import Link from 'next/link';
 import AuthContext from '../../../context/AuthContext';
 import { useRouter } from 'next/router';
-import { fetchAdminData } from '../../../hooks/useApi';
+import { fetchAdminData, getNewEnquiries } from '../../../hooks/useApi';
 import { BigMessage } from '../../common/Message';
 
 function AdminLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [auth, setAuth] = useContext(AuthContext);
+
+  const enquiryLength = getNewEnquiries();
 
   const router = useRouter();
 
@@ -31,7 +33,7 @@ function AdminLayout({ children }) {
   const user = auth.user;
   const { data, error } = fetchAdminData('messages?new=true');
 
-  if (error) {
+  if (error || enquiryLength === 'error') {
     console.log(error);
     return (
       <div>
@@ -44,7 +46,7 @@ function AdminLayout({ children }) {
     newMessages = data.length;
   }
 
-  if (!data) {
+  if (!data || enquiryLength === 'loading') {
     return (
       <div>
         <BigMessage message="Loading dashboard..." style="loading" />
@@ -81,6 +83,7 @@ function AdminLayout({ children }) {
               setAuth={setAuth}
               user={user}
               newMessages={newMessages}
+              enquiryLength={enquiryLength}
               logout={logout}
             />
           </Disclosure>
@@ -91,11 +94,12 @@ function AdminLayout({ children }) {
                 setAuth={setAuth}
                 user={user}
                 newMessages={newMessages}
+                enquiryLength={enquiryLength}
                 logout={logout}
               />
             </div>
             <div className="col-span-4 lg:col-span-3 xl:col-span-4 pb-20 bg-gray-100">
-              <main className=" mx-10">{children}</main>
+              <main className="mx-10">{children}</main>
             </div>
           </div>
         </>
